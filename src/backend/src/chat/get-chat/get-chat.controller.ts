@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ChatService } from '../chat.service';
 
-@Controller('get-chat')
+@Controller('getChat')
 export class GetChatController {
 
 	constructor(private ChatService: ChatService) {}
@@ -13,5 +13,15 @@ export class GetChatController {
 			throw new NotFoundException();
 		  }
 		  return chat;*/
+	}
+
+	@Get('findChat/:id')
+	async findChat(@Param('id') id: number) {
+		return await this.ChatService.findChat(id);
+	}
+
+	@Get('findUsersOfChat/:id')
+	async findUsersOfChat(@Param('id') id: number) {
+		return await this.ChatService.findUsersOfChat(id);
 	}
 }

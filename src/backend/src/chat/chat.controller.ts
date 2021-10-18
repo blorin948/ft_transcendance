@@ -7,8 +7,8 @@ export class ChatController {
 	constructor(private ChatService: ChatService) {}
 
 	@Post('createChat')
-	createChatManager(@Body(ValidationPipe) ChatInfo: ChatDTO) {
-		return this.ChatService.createChatManager(ChatInfo);
+	createChat(@Body(ValidationPipe) ChatInfo: ChatDTO) {
+		return this.ChatService.createChat(ChatInfo);
 	}
 	
 	@Post('AddUserToChat')

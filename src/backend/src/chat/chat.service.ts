@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChatManagerEntity } from 'src/entities/chat-manager.entity';
+import { info } from 'console';
+import { User } from 'src/auth/user.decorator';
 import { ChatParticipantsEntity } from 'src/entities/chat-participants.entity';
 import { ChatEntity } from 'src/entities/chat.entity';
 import { UserEntity } from 'src/entities/user.entity';
@@ -11,20 +12,19 @@ import { getRepository, Repository } from 'typeorm';
 export class ChatService {
 	constructor(
 		@InjectRepository(ChatEntity) private ChatRepo: Repository<ChatEntity>,
-		@InjectRepository(ChatManagerEntity) private ChatManagerRepo: Repository<ChatManagerEntity>,
 		@InjectRepository(ChatParticipantsEntity) private ChatParticipantsRepo: Repository<ChatParticipantsEntity>,
 		) {}
 
-	async createChatManager(ChatInfo: ChatDTO)
+	async createChat(ChatInfo: ChatDTO)
 	{
-		const chatManager = this.ChatManagerRepo.create(ChatInfo);
+		const chatManager = this.ChatRepo.create(ChatInfo);
 		const id = await this.createChat(chatManager);
 		chatManager.chat = await this.ChatRepo.findOne(id);
 		await chatManager.save();
 		return {chatManager: {...chatManager}};
 	}
 	
-	async createChat(ChatManager: ChatManagerEntity) {
+	async createChat(ChatManager: ChatEntity) {
 		const chat = this.ChatRepo.create();
 		await chat.save();
 		return chat.id;
@@ -43,5 +43,18 @@ export class ChatService {
 		.where("chat.userId = :id", {id : id})
 		.getMany();
 		return chats;
+	}
+
+	async findChat(id:number) : Promise<ChatEntity> {
+		const chat = await this.ChatRepo.findOne(id);
+		return chat;
+	}
+
+	async findUsersOfChat(id: number) : Promise<ChatParticipantsEntity[]> {
+		const users = await getRepository(ChatParticipantsEntity)
+		.createQueryBuilder('chat')
+		.where("chat.chatId = :id", {id : id})
+		.getMany()
+		return users;
 	}
 }
